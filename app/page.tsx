@@ -162,39 +162,49 @@ export default function ProductGrid() {
     });
   };
 
-  // Get unique product types for filter dropdown
-  const productTypes = Array.from(
-    new Set(products.map((p) => p.type).filter(Boolean)),
-  );
+  // Derive custom categories
+  const derivedCategories = [
+    { label: "All", value: "" },
+    { label: "Sports", value: "sports" },
+    { label: "Noise Cancelling", value: "noise-cancelling" },
+    ...Array.from(new Set(products.map((p) => p.type).filter(Boolean)))
+      .filter((type) => type !== "Wireless Earbuds")
+      .map((type) => ({ label: type, value: type })),
+  ];
+
+  // Helper to check if a product matches a derived category
+  function matchesCategory(product: Product, category: string) {
+    if (!category) return true;
+    // Assign by ID for demo purposes
+    const sportsIds = ["2", "4", "8"]; // TOZO T6, JBL Vibe Beam, Skullcandy Sesh Evo
+    const noiseCancellingIds = ["1", "3", "5", "6", "7"]; // Soundcore, AirPods Pro, Beats, Sony, Samsung
+    if (category === "sports") {
+      return (
+        sportsIds.includes(product.id) ||
+        product.title.toLowerCase().includes("sport") ||
+        product.options?.toLowerCase().includes("sport")
+      );
+    }
+    if (category === "noise-cancelling") {
+      return (
+        noiseCancellingIds.includes(product.id) ||
+        product.title.toLowerCase().includes("noise cancelling")
+      );
+    }
+    // Default: match by type
+    return product.type === category;
+  }
 
   // Filter and sort products
-  let displayedProducts = products.filter(
-    (p) => !filterType || p.type === filterType,
-  );
+  let displayedProducts = products.filter((p) => matchesCategory(p, filterType));
   if (sortBy === "price-asc") {
-    displayedProducts = [...displayedProducts].sort(
-      (a, b) => a.price - b.price,
-    );
+    displayedProducts = [...displayedProducts].sort((a, b) => a.price - b.price);
   } else if (sortBy === "price-desc") {
-    displayedProducts = [...displayedProducts].sort(
-      (a, b) => b.price - a.price,
-    );
+    displayedProducts = [...displayedProducts].sort((a, b) => b.price - a.price);
   } else if (sortBy === "rating-desc") {
-    displayedProducts = [...displayedProducts].sort(
-      (a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0),
-    );
-    console.log(
-      "Sorted by rating desc",
-      displayedProducts.map((p) => p.rating),
-    );
+    displayedProducts = [...displayedProducts].sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
   } else if (sortBy === "rating-asc") {
-    displayedProducts = [...displayedProducts].sort(
-      (a, b) => (Number(a.rating) || 0) - (Number(b.rating) || 0),
-    );
-    console.log(
-      "Sorted by rating asc",
-      displayedProducts.map((p) => p.rating),
-    );
+    displayedProducts = [...displayedProducts].sort((a, b) => (Number(a.rating) || 0) - (Number(b.rating) || 0));
   }
 
   if (loading) {
@@ -269,10 +279,9 @@ export default function ProductGrid() {
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
             >
-              <option value="">All</option>
-              {productTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+              {derivedCategories.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
                 </option>
               ))}
             </select>
@@ -338,6 +347,12 @@ export default function ProductGrid() {
         }
       >
         <DialogContent className="max-w-2xl w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
+          {/* Visually hidden description for accessibility if no product is selected */}
+          {!selectedProduct && (
+            <DialogDescription className="sr-only">
+              Product details dialog
+            </DialogDescription>
+          )}
           {selectedProduct && (
             <>
               <DialogHeader>
