@@ -7,6 +7,7 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { CartDrawer } from "@/components/CartDrawer";
 import { useState, useEffect } from "react";
 import { ShoppingCart, Star, Trash2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,28 +22,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useRef } from "react";
-
-interface Product {
-  id: string;
-  image: string;
-  title: string;
-  type: string;
-  quantity: string;
-  options: string;
-  rating: number;
-  reviewCount: number;
-  purchaseStats: string;
-  price: number;
-  originalPrice?: number;
-  subscriptionPrice?: number;
-  subscriptionDiscount?: string;
-  delivery: string;
-  fastestDelivery: string;
-  badge?: string;
-  moreOptions?: string;
-  eligibility?: string;
-  isTopRated?: boolean;
-}
+import { ProductCard, Product } from "@/components/ProductCard";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 function StarRating({
   rating,
@@ -78,148 +59,6 @@ function StarRating({
         {reviewCount.toLocaleString()}
       </span>
     </div>
-  );
-}
-
-function ProductCard({
-  product,
-  onAddToCart,
-}: {
-  product: Product;
-  onAddToCart: (id: string) => void;
-}) {
-  return (
-    <section
-      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-in-out hover:z-10 focus-within:shadow-2xl focus-within:scale-105 focus-within:-translate-y-1 focus-within:z-10"
-      role="region"
-      aria-label={product.title}
-    >
-      {/* Product Image */}
-      <div className="relative mb-3">
-        <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.title}
-          className="w-full h-48 object-contain"
-        />
-        {product.isTopRated && (
-          <Badge className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1">
-            #1 Top Rated
-          </Badge>
-        )}
-      </div>
-      {/* Product Title */}
-      <h3 className="text-sm font-normal text-gray-900 mb-2 line-clamp-3 leading-tight">
-        {product.title}
-      </h3>
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-2">
-        <Badge
-          variant="secondary"
-          className="text-xs bg-gray-100 text-gray-700"
-        >
-          {product.type}
-        </Badge>
-        {product.quantity && (
-          <Badge
-            variant="secondary"
-            className="text-xs bg-gray-100 text-gray-700"
-          >
-            {product.quantity}
-          </Badge>
-        )}
-      </div>
-      {/* Options */}
-      <p className="text-xs text-gray-600 mb-2">Options: {product.options}</p>
-      {/* Rating */}
-      <div className="mb-2">
-        <StarRating rating={product.rating} reviewCount={product.reviewCount} />
-      </div>
-      {/* Purchase Stats */}
-      <p className="text-xs text-gray-600 mb-3">{product.purchaseStats}</p>
-      {/* Price */}
-      <div className="mb-2">
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-normal">
-            <span className="text-sm align-super">$</span>
-            <span className="text-xl">{Math.floor(product.price)}</span>
-            <span className="text-sm align-super">
-              {(product.price % 1).toFixed(2).slice(1)}
-            </span>
-          </span>
-          {product.originalPrice && (
-            <span className="text-sm text-gray-500 line-through">
-              (${product.originalPrice.toFixed(2)}/ounce)
-            </span>
-          )}
-        </div>
-        {product.subscriptionPrice && (
-          <p className="text-sm text-gray-700">
-            ${product.subscriptionPrice.toFixed(2)} with{" "}
-            {product.subscriptionDiscount}
-          </p>
-        )}
-      </div>
-      {/* Delivery Info */}
-      <div className="mb-3">
-        <p className="text-sm font-bold text-gray-900">{product.delivery}</p>
-        <p className="text-sm text-gray-600">{product.fastestDelivery}</p>
-      </div>
-      {/* More Options */}
-      {product.moreOptions && (
-        <p className="text-sm text-gray-600 mb-2">More Buying Choices</p>
-      )}
-      {/* Eligibility */}
-      {product.eligibility && (
-        <p className="text-sm text-gray-600 mb-3">{product.eligibility}</p>
-      )}
-      {/* Add to Cart Button */}
-      <Button
-        onClick={() => onAddToCart(product.id)}
-        className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-normal rounded-full py-3 text-base focus:outline-none active:scale-95 transition-transform duration-200 ease-in-out min-h-[48px] min-w-[48px] sm:min-h-[48px] sm:min-w-[48px]"
-        aria-label={`Add ${product.title} to cart`}
-        style={{ minHeight: 48 }} // touch target
-      >
-        Add to cart
-      </Button>
-    </section>
-  );
-}
-
-function ConfirmDialog({
-  open,
-  title,
-  description,
-  onConfirm,
-  onCancel,
-}: {
-  open: boolean;
-  title: string;
-  description: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        if (!open) onCancel();
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <div className="flex gap-4 justify-end mt-4">
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Confirm
-      </Button>
-    </div>
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -398,123 +237,17 @@ export default function ProductGrid() {
               </Badge>
             )}
             </button>
-            <Drawer open={cartDrawerOpen} onOpenChange={setCartDrawerOpen}>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>Cart</DrawerTitle>
-                  <DialogDescription>
-                    This is your shopping cart. Review your items and proceed to checkout when ready.
-                  </DialogDescription>
-                  <DrawerClose className="absolute right-4 top-4">
-                    Close
-                  </DrawerClose>
-                </DrawerHeader>
-                <div className="p-4 max-h-[60vh] overflow-y-auto">
-                  {Object.keys(cartItems).length === 0 ? (
-                    <p className="text-gray-600">Your cart is empty.</p>
-                  ) : (
-                    <>
-                      <ul className="divide-y divide-gray-200">
-                        {Object.entries(cartItems).map(([id, count]) => {
-                          const product = products.find((p) => p.id === id);
-                          if (!product) return null;
-                          const subtotal = product.price * count;
-                          return (
-                            <li
-                              key={id}
-                              className="flex items-center gap-3 py-3"
-                            >
-                              <img
-                                src={product.image}
-                                alt={product.title}
-                                className="w-16 h-16 object-contain rounded border"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm text-gray-900 truncate">
-                                  {product.title}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  Unit: ${product.price.toFixed(2)}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  Subtotal: ${subtotal.toFixed(2)}
-                                </div>
-                              </div>
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    aria-label={`Decrease quantity of ${product.title}`}
-                                    className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                                    onClick={() => {
-                                      if (count === 1) {
-                                        setShowRemoveItemConfirm({
-                                          id: product.id,
-                                        });
-                                      } else {
-                                        handleChangeCartQuantity(
-                                          product.id,
-                                          -1,
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    <Minus className="w-4 h-4" />
-                                  </button>
-                                  <span className="text-sm font-bold w-6 text-center">
-                                    {count}
-                                  </span>
-                                  <button
-                                    aria-label={`Increase quantity of ${product.title}`}
-                                    className="text-gray-400 hover:text-green-600 transition-colors p-1"
-                                    onClick={() => {
-                                      handleChangeCartQuantity(product.id, 1);
-                                      toast({
-                                        title: "Added to cart!",
-                                        duration: 1000,
-                                      });
-                                    }}
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                  </button>
-                                </div>
-                                <button
-                                  aria-label={`Remove ${product.title} from cart`}
-                                  className="text-gray-400 hover:text-red-600 transition-colors"
-                                  onClick={() => setShowRemoveItemConfirm({ id: product.id })}
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                      <div className="flex justify-between items-center mt-6 pt-4 border-t font-bold text-base">
-                        <span>Total</span>
-                        <span>
-                          $
-                          {Object.entries(cartItems)
-                            .reduce((total, [id, count]) => {
-                              const product = products.find((p) => p.id === id);
-                              return product
-                                ? total + product.price * count
-                                : total;
-                            }, 0)
-                            .toFixed(2)}
-                        </span>
-                      </div>
-                      <Button
-                        className="w-full mt-4 border border-red-600 text-red-600 bg-white hover:bg-red-600 hover:text-white font-semibold rounded transition-colors"
-                        onClick={() => setShowClearCartConfirm(true)}
-                        aria-label="Clear cart"
-                      >
-                        Clear Cart
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </DrawerContent>
-            </Drawer>
+            <CartDrawer
+              open={cartDrawerOpen}
+              onOpenChange={setCartDrawerOpen}
+              cartItems={cartItems}
+              products={products}
+              onChangeQuantity={handleChangeCartQuantity}
+              onRemoveItem={handleRemoveFromCart}
+              onShowRemoveItemConfirm={(id) => setShowRemoveItemConfirm({ id })}
+              onShowClearCartConfirm={() => setShowClearCartConfirm(true)}
+              toast={toast}
+            />
           </div>
         </div>
       </header>
