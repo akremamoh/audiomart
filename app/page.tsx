@@ -323,7 +323,8 @@ export default function ProductGrid() {
                 const timeout = setTimeout(() => setHoveredProduct(null), 150);
                 setHoverTimeout(timeout);
               }}
-              className="outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+              className="outline-none focus:ring-2 focus:ring-blue-500 rounded-lg h-full flex"
+              style={{ minHeight: 420 }}
             >
               <ProductCard product={product} onAddToCart={handleAddToCart} />
             </div>
