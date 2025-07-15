@@ -90,7 +90,7 @@ function ProductCard({
 }) {
   return (
     <section
-      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 transition-transform duration-300 ease-out hover:z-10 focus-within:shadow-2xl focus-within:scale-105 focus-within:-translate-y-1 focus-within:z-10"
+      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 ease-in-out hover:z-10 focus-within:shadow-2xl focus-within:scale-105 focus-within:-translate-y-1 focus-within:z-10"
       role="region"
       aria-label={product.title}
     >
@@ -175,7 +175,7 @@ function ProductCard({
       {/* Add to Cart Button */}
       <Button
         onClick={() => onAddToCart(product.id)}
-        className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-normal rounded-full py-3 text-base focus:outline-none active:scale-95 transition-transform"
+        className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-normal rounded-full py-3 text-base focus:outline-none active:scale-95 transition-transform duration-200 ease-in-out min-h-[48px] min-w-[48px] sm:min-h-[48px] sm:min-w-[48px]"
         aria-label={`Add ${product.title} to cart`}
         style={{ minHeight: 48 }} // touch target
       >
@@ -382,12 +382,12 @@ export default function ProductGrid() {
           <h1 className="text-xl font-bold">AudioMart</h1>
           <div className="relative">
             <button
-              className="relative focus:outline-none active:scale-95 transition-transform"
+              className="relative focus:outline-none active:scale-95 transition-transform group"
               aria-label="Open cart"
               onClick={() => setCartDrawerOpen(true)}
               style={{ minWidth: 48, minHeight: 48 }} // touch target
             >
-              <ShoppingCart className="w-6 h-6" aria-label="Shopping cart" />
+              <ShoppingCart className="w-6 h-6 transition-transform duration-200 group-hover:scale-125 group-hover:-rotate-12" aria-label="Shopping cart" />
             {cartCount > 0 && (
                 <Badge
                   className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full"
